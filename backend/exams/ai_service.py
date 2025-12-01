@@ -6,10 +6,10 @@ import json
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def generate_questions_from_text(text_content, num_questions=5, difficulty="Medium"):
-    # 1. Select Model
-    model = genai.GenerativeModel('gemini-pro')
+    # FIX: Use the latest stable model "gemini-1.5-flash"
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
-    # 2. Craft the Prompt (This is the most important part)
+    # 2. Craft the Prompt
     prompt = f"""
     You are an expert exam setter for competitive exams.
     Based on the following text notes, generate {num_questions} {difficulty} level Multiple Choice Questions (MCQ).
@@ -33,4 +33,10 @@ def generate_questions_from_text(text_content, num_questions=5, difficulty="Medi
         return json.loads(clean_text)
     except Exception as e:
         print(f"AI Error: {e}")
-        return []
+        # Return a fallback error question so the UI doesn't crash
+        return [{
+            "question_text": "Error generating questions. Please try again.",
+            "options": ["Error", "Error", "Error", "Error"],
+            "correct_index": 0,
+            "marks": 0
+        }]
