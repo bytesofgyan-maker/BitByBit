@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import NotesPage from './pages/NotesPage'; // <--- NEW IMPORT
 import { LogOut, LayoutDashboard, BookOpen } from 'lucide-react';
+import AdminGeneratorPage from './pages/AdminGeneratorPage';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -78,6 +79,7 @@ function App() {
             <Route path="/courses" element={<PrivateRoute><CourseList /></PrivateRoute>} />
             <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/exam/:examId" element={<PrivateRoute><ExamPage /></PrivateRoute>} />
+            <Route path="/admin-generator" element={<AdminGeneratorPage />} />
             
             {/* NEW: Secure Notes Route */}
             <Route path="/topic/:topicId/notes" element={<PrivateRoute><NotesPage /></PrivateRoute>} />
