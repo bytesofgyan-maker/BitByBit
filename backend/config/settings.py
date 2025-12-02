@@ -56,6 +56,13 @@ INSTALLED_APPS = [
     'djoser',
 ]
 
+DJOSER = {
+    'SERIALIZERS': {
+        'current_user': 'exams.serializers.CustomUserSerializer',
+    },
+    # ... any other existing djoser settings
+}
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -85,6 +92,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'config.wsgi.application'
 

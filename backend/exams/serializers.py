@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Course, Subject, Chapter, Topic, Exam, Question, Option, ExamAttempt
+from djoser.serializers import UserSerializer as BaseUserSerializer
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,3 +57,7 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAttempt
         fields = ['id', 'exam_title', 'start_time', 'total_score', 'exam_total_marks', 'is_completed']
+
+class CustomUserSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
+        fields = ['id', 'username', 'email', 'is_superuser', 'is_staff']

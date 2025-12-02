@@ -29,6 +29,14 @@ const AdminLoginPage = () => {
                 headers: { Authorization: `JWT ${token}` }
             });
 
+            // DEBUG CHECK: If fields are missing, warn the developer
+            if (userRes.data.is_superuser === undefined) {
+                setError("Configuration Error: Backend is not sending admin status. Please update Djoser serializers.");
+                console.error("User Data received:", userRes.data);
+                setIsLoading(false);
+                return;
+            }
+
             if (!userRes.data.is_superuser && !userRes.data.is_staff) {
                 setError("Access Denied: You do not have admin privileges.");
                 setIsLoading(false);
