@@ -4,6 +4,11 @@ import axios from 'axios';
 // This bypasses the environment variable issue completely.
 const api = axios.create({
     baseURL: 'https://bitbybit-p3ym.onrender.com/api/',
+    headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+    }
 });
 
 // Add the token to every request if we have one
