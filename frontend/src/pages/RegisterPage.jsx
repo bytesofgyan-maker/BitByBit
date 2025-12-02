@@ -24,7 +24,6 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // 1. Client-side Validation
         if (formData.password !== formData.re_password) {
             setError("Passwords do not match.");
             return;
@@ -34,22 +33,29 @@ const RegisterPage = () => {
         setError('');
 
         try {
-            // 2. Send Data (Djoser expects 're_password' if configured)
             await api.post('auth/users/', formData);
-            
-            // Success!
             alert("Registration Successful! Please check your email to activate or login.");
             navigate('/login');
         } catch (err) {
             console.error("Registration Error:", err);
             
-            if (err.response && err.response.data) {
+            if (err.response) {
                 const data = err.response.data;
-                const firstErrorKey = Object.keys(data)[0];
-                const errorMessage = Array.isArray(data[firstErrorKey]) 
-                    ? data[firstErrorKey][0] 
-                    : data[firstErrorKey];
-                setError(`${firstErrorKey.toUpperCase()}: ${errorMessage}`);
+                
+                // FIX: Check if the response is HTML (Server Crash)
+                if (typeof data === 'string' && data.startsWith('<')) {
+                    setError("Server Error (500): The backend crashed. Check Render logs.");
+                } 
+                // Handle standard Django JSON errors
+                else if (data && typeof data === 'object') {
+                    const firstErrorKey = Object.keys(data)[0];
+                    const errorMessage = Array.isArray(data[firstErrorKey]) 
+                        ? data[firstErrorKey][0] 
+                        : data[firstErrorKey];
+                    setError(`${firstErrorKey.toUpperCase()}: ${errorMessage}`);
+                } else {
+                    setError("An unknown error occurred.");
+                }
             } else {
                 setError("Network error. Please check your connection.");
             }
