@@ -100,6 +100,25 @@ const Layout = ({ children }) => {
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('access_token');
+  useEffect(() => {
+    const handleFocus = () => {
+        // on a protected page but have no token, force reload
+        const isPublic = ['/login', '/register', '/'].includes(window.location.pathname);
+        const hasToken = !!localStorage.getItem('access_token');
+        
+        if (!isPublic && !hasToken) {
+            window.location.href = '/login';
+        }
+    };
+
+    window.addEventListener('pageshow', handleFocus); // Standard navigation
+    window.addEventListener('popstate', handleFocus); // Back button navigation
+    
+    return () => {
+        window.removeEventListener('pageshow', handleFocus);
+        window.removeEventListener('popstate', handleFocus);
+    };
+  }, []);
 
   return (
     <Router>
