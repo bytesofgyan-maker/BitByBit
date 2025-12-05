@@ -91,10 +91,20 @@ class AIGeneratorViewSet(viewsets.ViewSet):
         topic_id = request.data.get('topic_id')
         num_questions = request.data.get('num_questions', 5)
         difficulty = request.data.get('difficulty', 'Medium')
+        custom_instructions = request.data.get('custom_instructions', '') # <--- NEW
+
         topic = get_object_or_404(Topic, id=topic_id)
+        
+        # Check if notes exist
         if not topic.study_notes:
-            return Response({"error": "This topic has no notes to generate from."}, status=400)
-        questions_json = generate_questions_from_text(topic.study_notes, num_questions, difficulty)
+            return Response({"error": "Topic has no notes."}, status=400)
+
+        questions_json = generate_questions_from_text(
+            topic.study_notes, 
+            num_questions, 
+            difficulty, 
+            custom_instructions
+        )
         return Response(questions_json)
 
     @action(detail=False, methods=['post'])

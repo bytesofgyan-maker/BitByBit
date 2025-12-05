@@ -2,38 +2,49 @@ import google.generativeai as genai
 from django.conf import settings
 import json
 
-# Configure the API
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-def generate_questions_from_text(text_content, num_questions=5, difficulty="Medium"):
-    # FIX: Updated to the latest 2025 model version
+def generate_questions_from_text(text_content, num_questions=5, difficulty="Medium", custom_instructions=""):
     model = genai.GenerativeModel('gemini-2.5-flash')
 
-    # 2. Craft the Prompt
+    # Logic: If instructions are empty, default to general competitive exams.
+    # If provided (e.g., "TRE 4.0"), the AI will adapt to that style.
+    style_guide = custom_instructions if custom_instructions else "General Competitive Exam standards"
+
+    # Dynamic Prompt
     prompt = f"""
-    You are an expert exam setter for competitive exams.
-    Based on the following text notes, generate {num_questions} {difficulty} level Multiple Choice Questions (MCQ).
+    Act as an expert exam setter.
     
+    CONTEXT / EXAM STYLE:
+    {style_guide}
+    
+    TASK: 
+    Generate {num_questions} Multiple Choice Questions (MCQ) based strictly on the notes provided below.
+    DIFFICULTY LEVEL: {difficulty}
+    
+    STRICT JSON OUTPUT FORMAT:
     The output MUST be a valid JSON array. Do not include markdown formatting like ```json ... ```.
-    Each object in the array must have:
-    - "question_text": String
-    - "options": Array of 4 strings
-    - "correct_index": Integer (0-3)
-    - "marks": Integer (Default to 2)
+    [
+        {{
+            "question_text": "Question here...",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "correct_index": 0, // Integer 0-3
+            "marks": 1
+        }}
+    ]
     
-    Here are the notes:
-    {text_content}
+    SOURCE MATERIAL (NOTES):
+    {text_content[:15000]} // Truncated to fit token limits
     """
 
-    # 3. Call AI
     try:
         response = model.generate_content(prompt)
-        # Clean up response if AI adds markdown code blocks
+        # Cleanup potential markdown wrapper from AI response
         clean_text = response.text.replace("```json", "").replace("```", "").strip()
         return json.loads(clean_text)
     except Exception as e:
         print(f"AI Error: {e}")
-        # Return a fallback error question so the UI doesn't crash
+        # Return fallback error question so frontend doesn't crash
         return [{
             "question_text": "Error generating questions. Please try again.",
             "options": ["Error", "Error", "Error", "Error"],
