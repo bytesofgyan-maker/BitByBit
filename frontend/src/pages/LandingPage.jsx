@@ -1,116 +1,249 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, CheckCircle, Clock, Trophy, ChevronRight, GraduationCap, ArrowRight } from 'lucide-react';
+import { 
+    BookOpen, CheckCircle, Clock, Trophy, ChevronDown, Menu, X, 
+    GraduationCap, ArrowRight, Monitor, Cpu, FileText, Globe 
+} from 'lucide-react';
+
+// --- NAVIGATION DATA ---
+const NAV_LINKS = [
+    {
+        label: "All Courses",
+        type: "mega",
+        columns: [
+            {
+                title: "Competitive Exams",
+                items: ["IIT JEE", "NEET", "GATE", "UGC NET", "Olympiad"]
+            },
+            {
+                title: "Govt Exams",
+                items: ["SSC CGL", "Banking (IBPS/SBI)", "Railways (RRB)", "Defence (CDS/AFCAT)", "Teaching (CTET)"]
+            },
+            {
+                title: "School Prep",
+                items: ["Class 11-12", "Class 9-10", "CBSE Boards", "ICSE Boards"]
+            },
+            {
+                title: "Upskilling",
+                items: ["Data Science", "Web Development", "Finance & Stock Market", "Generative AI"]
+            }
+        ]
+    },
+    {
+        label: "India's Update",
+        type: "link",
+        to: "/news"
+    },
+    {
+        label: "AI Tools",
+        type: "dropdown",
+        items: [
+            { name: "AI Summarizer", icon: <FileText size={16}/> },
+            { name: "Video to Text", icon: <Monitor size={16}/> },
+            { name: "Mind Map Generator", icon: <Cpu size={16}/> },
+            { name: "Auto-Notes Maker", icon: <BookOpen size={16}/> }
+        ]
+    },
+    {
+        label: "Test Series",
+        type: "dropdown",
+        items: [
+            { name: "GATE Mock Tests" },
+            { name: "SSC CGL Tier-1" },
+            { name: "Banking Prelims" },
+            { name: "UGC NET Paper 1" }
+        ]
+    },
+    {
+        label: "Full Length PYQs",
+        type: "dropdown",
+        items: [
+            { name: "JEE Advanced PYQ" },
+            { name: "NEET Previous Years" },
+            { name: "UPSC Prelims PYQ" },
+            { name: "GATE CS 2010-2024" }
+        ]
+    },
+    {
+        label: "Power Batch",
+        type: "text", // Garbage/No Action
+    }
+];
 
 const LandingPage = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
     return (
-        <div className="bg-slate-50 font-sans text-slate-800">
-            {/* --- HERO SECTION --- */}
-            <header className="relative overflow-hidden bg-slate-900 text-white pt-24 pb-32 px-6">
-                {/* Background Blobs (Ambient Glow) */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                    <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-600/30 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-3xl"></div>
-                </div>
-
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16 relative z-10">
-                    {/* Left: Text Content */}
-                    <div className="md:w-1/2 space-y-8">
-                        <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-blue-400">
-                            <span className="relative flex h-2 w-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                            </span>
-                            Live: AI Question Generator
-                        </div>
+        <div className="bg-white font-sans text-slate-800">
+            
+            {/* --- NAVIGATION BAR --- */}
+            <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-20">
                         
-                        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
-                            Master Exams <br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400">
-                                Bit by Bit.
-                            </span>
-                        </h1>
-                        
-                        <p className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-xl">
-                            Stop cramming. Start understanding. The smart learning platform that adapts to your pace with bite-sized notes and real-time analytics.
-                        </p>
-                        
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link to="/register" className="group bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 hover:-translate-y-1">
-                                Get Started Free <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
-                            </Link>
-                            <Link to="/login" className="px-8 py-4 rounded-xl font-bold text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center">
-                                Login
-                            </Link>
-                        </div>
-
-                        {/* Social Proof */}
-                        <div className="flex items-center gap-4 text-sm text-slate-500 pt-4 border-t border-slate-800 mt-8 w-max">
-                            <div className="flex -space-x-3">
-                                {[1,2,3,4].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700 flex items-center justify-center text-xs text-white">
-                                        <UserIcon />
-                                    </div>
-                                ))}
+                        {/* Logo */}
+                        <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+                            <div className="bg-slate-900 text-white p-2 rounded-lg">
+                                <GraduationCap size={24} />
                             </div>
-                            <p>Joined by <span className="text-white font-bold">1,000+</span> aspirants</p>
+                            <span className="font-black text-2xl tracking-tighter">
+                                <span className="text-blue-600">Bit</span>byBit
+                            </span>
+                        </div>
+
+                        {/* Desktop Menu */}
+                        <div className="hidden lg:flex items-center space-x-1">
+                            {NAV_LINKS.map((link, idx) => (
+                                <div 
+                                    key={idx}
+                                    className="relative group"
+                                    onMouseEnter={() => setActiveDropdown(idx)}
+                                    onMouseLeave={() => setActiveDropdown(null)}
+                                >
+                                    {/* Menu Item Button */}
+                                    <button className={`px-3 py-2 rounded-md text-sm font-bold flex items-center gap-1 transition-colors ${link.type === 'text' ? 'text-slate-400 cursor-default' : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50'}`}>
+                                        {link.label}
+                                        {['mega', 'dropdown'].includes(link.type) && <ChevronDown size={14} className="mt-0.5 group-hover:rotate-180 transition-transform"/>}
+                                    </button>
+
+                                    {/* Dropdowns */}
+                                    {activeDropdown === idx && (
+                                        <div className="absolute top-full left-0 pt-2 w-max">
+                                            {link.type === 'mega' && (
+                                                <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-6 grid grid-cols-4 gap-8 w-[800px] -ml-20">
+                                                    {link.columns.map((col, cIdx) => (
+                                                        <div key={cIdx}>
+                                                            <h4 className="font-bold text-blue-600 mb-3 uppercase text-xs tracking-wider border-b pb-2">{col.title}</h4>
+                                                            <ul className="space-y-2">
+                                                                {col.items.map((item, iIdx) => (
+                                                                    <li key={iIdx} className="text-sm text-slate-600 hover:text-slate-900 cursor-pointer hover:underline decoration-blue-300 underline-offset-4">{item}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {link.type === 'dropdown' && (
+                                                <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-2 w-56">
+                                                    {link.items.map((item, iIdx) => (
+                                                        <div key={iIdx} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer group">
+                                                            {item.icon && <span className="text-slate-400 group-hover:text-blue-500">{item.icon}</span>}
+                                                            <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">{item.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Auth Buttons */}
+                        <div className="hidden lg:flex items-center gap-3">
+                            <Link to="/login" className="text-slate-600 font-bold hover:text-blue-600 px-4 py-2">Login</Link>
+                            <Link to="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-200">
+                                Get Started
+                            </Link>
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="lg:hidden">
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600">
+                                {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                            </button>
                         </div>
                     </div>
-                    
-                    {/* Right: Hero Image / Graphics */}
-                    <div className="md:w-1/2 relative perspective-1000">
-                        {/* Main Dashboard Card */}
-                        <div className="relative bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700 shadow-2xl transition-transform duration-700 ease-out hover:rotate-0 md:rotate-y-12">
-                            {/* Window Controls */}
-                            <div className="flex items-center gap-2 mb-6 border-b border-slate-700 pb-4">
-                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                <div className="ml-4 bg-slate-900 rounded-md px-3 py-1 text-xs text-slate-500 w-full font-mono">bitbybit.app/dashboard</div>
-                            </div>
-                            
-                            {/* Mock UI Content */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <h3 className="text-white font-bold text-lg">My Progress</h3>
-                                    <span className="text-emerald-400 text-xs font-mono bg-emerald-400/10 px-2 py-1 rounded">+12% this week</span>
-                                </div>
-                                
-                                {/* Progress Bar */}
-                                <div className="bg-slate-700/50 rounded-xl p-4">
-                                    <div className="flex justify-between text-sm text-slate-300 mb-2">
-                                        <span>Operating Systems</span>
-                                        <span>85%</span>
-                                    </div>
-                                    <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-                                        <div className="h-full w-[85%] bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                                    </div>
-                                </div>
+                </div>
 
-                                {/* Active Quiz Card */}
-                                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl">
-                                    <div className="bg-blue-500/20 p-3 rounded-lg text-blue-400">
-                                        <Clock size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-white font-bold">Daily Quiz</h4>
-                                        <p className="text-slate-400 text-sm">10 Questions • 15 Mins</p>
-                                    </div>
-                                    <button className="ml-auto bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors">
-                                        Resume
-                                    </button>
+                {/* Mobile Menu Drawer */}
+                {isMobileMenuOpen && (
+                    <div className="lg:hidden bg-white border-t border-slate-100 absolute w-full left-0 shadow-xl max-h-[80vh] overflow-y-auto">
+                        <div className="p-4 space-y-4">
+                            {NAV_LINKS.map((link, idx) => (
+                                <div key={idx} className="border-b border-slate-50 pb-2 last:border-0">
+                                    <div className="font-bold text-slate-800 mb-2">{link.label}</div>
+                                    {link.type === 'mega' && (
+                                        <div className="pl-4 space-y-4">
+                                            {link.columns.map((col, cIdx) => (
+                                                <div key={cIdx}>
+                                                    <div className="text-xs font-bold text-blue-500 uppercase mb-1">{col.title}</div>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {col.items.map((item, iIdx) => (
+                                                            <div key={iIdx} className="text-sm text-slate-500">{item}</div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {link.type === 'dropdown' && (
+                                        <div className="pl-4 grid grid-cols-1 gap-2">
+                                            {link.items.map((item, iIdx) => (
+                                                <div key={iIdx} className="text-sm text-slate-500 flex items-center gap-2">
+                                                    {item.icon} {item.name}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
+                            ))}
+                            <div className="flex flex-col gap-3 mt-6">
+                                <Link to="/login" className="w-full text-center border border-slate-200 py-3 rounded-lg font-bold text-slate-700">Login</Link>
+                                <Link to="/register" className="w-full text-center bg-blue-600 text-white py-3 rounded-lg font-bold">Get Started</Link>
                             </div>
                         </div>
+                    </div>
+                )}
+            </nav>
 
-                        {/* Floating Badge (Animation) */}
-                        <div className="hidden md:flex absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 items-center gap-3 animate-bounce">
-                            <div className="bg-yellow-100 p-2 rounded-full text-yellow-600">
-                                <Trophy size={20} />
+            {/* --- HERO SECTION --- */}
+            <header className="relative bg-slate-900 text-white py-24 px-6 overflow-hidden">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
+                    <div className="md:w-1/2 space-y-6">
+                        <div className="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-sm font-medium text-blue-300">
+                            🚀 New Batch for GATE 2026 Live Now!
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+                            India's Most <br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                                Loved EdTech.
+                            </span>
+                        </h1>
+                        <p className="text-slate-400 text-lg leading-relaxed max-w-lg">
+                            We don't just teach; we transform. Join the revolution of affordable, high-quality education for every Indian student.
+                        </p>
+                        <div className="flex gap-4 pt-4">
+                            <Link to="/register" className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-900/50">
+                                Start Learning <ArrowRight size={20}/>
+                            </Link>
+                        </div>
+                    </div>
+                    <div className="md:w-1/2">
+                        {/* 3D Floating Elements Placeholder */}
+                        <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-3xl border border-slate-700 shadow-2xl">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-500"/>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500"/>
+                                    <div className="w-3 h-3 rounded-full bg-green-500"/>
+                                </div>
+                                <div className="text-slate-500 text-xs font-mono">live_class.mp4</div>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-bold uppercase">Current Streak</p>
-                                <p className="text-slate-800 font-bold text-lg">7 Days 🔥</p>
+                            <div className="bg-slate-950 rounded-xl h-64 flex items-center justify-center border border-slate-800 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-blue-600/10 group-hover:bg-blue-600/20 transition-colors"></div>
+                                <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                                    <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[20px] border-l-white border-b-[10px] border-b-transparent ml-1"></div>
+                                </div>
+                            </div>
+                            <div className="mt-6 flex gap-4">
+                                <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                    <div className="h-full w-2/3 bg-blue-500"></div>
+                                </div>
+                                <span className="text-xs text-slate-400">65% Complete</span>
                             </div>
                         </div>
                     </div>
@@ -118,84 +251,36 @@ const LandingPage = () => {
             </header>
 
             {/* --- FEATURES GRID --- */}
-            <section className="py-24 px-6 bg-white">
+            <section className="py-24 px-6 bg-slate-50">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Everything you need to ace it.</h2>
-                        <p className="text-slate-500 text-lg max-w-2xl mx-auto">We've stripped away the clutter. No boring lectures, just high-yield notes and rigorous practice.</p>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose Bit by Bit?</h2>
+                        <p className="text-slate-500">Structured courses, endless practice, and AI-powered insights.</p>
                     </div>
-                    
                     <div className="grid md:grid-cols-3 gap-8">
-                        <FeatureCard 
-                            icon={<BookOpen className="text-white" size={24} />}
-                            color="bg-blue-500"
-                            title="Bite-Sized Notes"
-                            desc="Complex topics broken down into 5-minute reads. Perfect for last-minute revision."
-                        />
-                        <FeatureCard 
-                            icon={<CheckCircle className="text-white" size={24} />}
-                            color="bg-emerald-500"
-                            title="Adaptive Quizzes"
-                            desc="Questions that get harder as you get smarter. AI-driven difficulty adjustment."
-                        />
-                        <FeatureCard 
-                            icon={<GraduationCap className="text-white" size={24} />}
-                            color="bg-purple-500"
-                            title="Detailed Analytics"
-                            desc="Don't just see your score. See your weak spots with topic-wise performance matrices."
-                        />
+                        <FeatureCard icon={<BookOpen size={24} className="text-white"/>} color="bg-blue-600" title="Comprehensive Notes" desc="Detailed chapter-wise notes curated by top faculties."/>
+                        <FeatureCard icon={<Clock size={24} className="text-white"/>} color="bg-purple-600" title="Real-time Mock Tests" desc="Practice in an actual exam-like environment with negative marking."/>
+                        <FeatureCard icon={<Trophy size={24} className="text-white"/>} color="bg-emerald-600" title="Performance Analysis" desc="Track your weak areas and improve bit by bit every day."/>
                     </div>
                 </div>
             </section>
 
-            {/* --- CTA SECTION --- */}
-            <section className="py-20 px-6">
-                <div className="max-w-5xl mx-auto bg-slate-900 rounded-3xl p-12 text-center relative overflow-hidden">
-                    {/* Background Gradients */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
-                    
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 relative z-10">Ready to start your journey?</h2>
-                    <p className="text-slate-400 mb-8 max-w-xl mx-auto relative z-10">Join thousands of students preparing for GATE, UGC-NET, and other competitive exams today.</p>
-                    <Link to="/register" className="relative z-10 inline-block bg-white text-slate-900 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-lg hover:scale-105 transform duration-200">
-                        Create Free Account
-                    </Link>
-                </div>
-            </section>
-
-            {/* --- FOOTER --- */}
-            <footer className="bg-white border-t border-slate-100 py-12 px-6">
-                <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-2 font-black text-2xl text-slate-900">
-                        <span className="text-blue-600">Bit</span>byBit
-                    </div>
-                    <div className="flex gap-8 text-slate-500 text-sm font-medium">
-                        <a href="#" className="hover:text-blue-600 transition-colors">Courses</a>
-                        <a href="#" className="hover:text-blue-600 transition-colors">Pricing</a>
-                        <a href="#" className="hover:text-blue-600 transition-colors">About</a>
-                    </div>
-                    <p className="text-slate-400 text-sm">© 2025 Bit by Bit Inc.</p>
-                </div>
+            {/* Footer */}
+            <footer className="bg-white border-t border-slate-200 py-12 text-center text-slate-500 text-sm">
+                &copy; 2025 Bit by Bit Education. All rights reserved.
             </footer>
         </div>
     );
 };
 
-// --- Helper Components ---
 const FeatureCard = ({ icon, color, title, desc }) => (
-    <div className="group bg-slate-50 p-8 rounded-3xl hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 border border-transparent hover:border-slate-100">
-        <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center mb-6 shadow-lg shadow-${color.replace('bg-', '')}/30 group-hover:scale-110 transition-transform`}>
+    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow">
+        <div className={`w-14 h-14 ${color} rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-slate-200`}>
             {icon}
         </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-        <p className="text-slate-600 leading-relaxed">{desc}</p>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">{title}</h3>
+        <p className="text-slate-500 leading-relaxed">{desc}</p>
     </div>
-);
-
-const UserIcon = () => (
-    <svg className="w-full h-full text-slate-400 bg-slate-800 rounded-full p-1" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
 );
 
 export default LandingPage;

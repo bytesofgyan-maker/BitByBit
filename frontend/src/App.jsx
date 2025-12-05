@@ -92,17 +92,16 @@ const AdminRoute = ({ children }) => {
 const Layout = ({ children }) => {
     const location = useLocation();
     
-    // Hide Student Navbar on Admin Pages
-    const isAdminPage = location.pathname.startsWith('/admin');
+    // Hide Student Navbar on Admin Pages AND Landing Page (since Landing has its own)
+    const hideNavbar = location.pathname.startsWith('/admin') || location.pathname === '/';
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
-            {!isAdminPage && <Navbar />}
+            {!hideNavbar && <Navbar />}
             {children}
         </div>
     );
 };
-
 function App() {
   const isLoggedIn = !!localStorage.getItem('access_token');
 
