@@ -6,10 +6,9 @@ from django.utils import timezone
 from django.db import transaction
 import csv
 import io
-
 from .models import Course, Exam, ExamAttempt, Question, Option, StudentResponse, Topic, Chapter, Subject
+from .ai_service import generate_questions_from_text, generate_question_from_image
 from .serializers import CourseSerializer, ExamSerializer, ExamAttemptSerializer, TopicSerializer
-from .ai_service import generate_questions_from_text
 from .permissions import IsPaidSubscriberOrAdmin
 
 # ... [Keep your existing ViewSets: CourseViewSet, TopicViewSet, ExamViewSet, AttemptHistoryViewSet] ...
@@ -88,34 +87,66 @@ class AIGeneratorViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def generate(self, request):
-        topic_id = request.data.get('topic_id')
-        num_questions = request.data.get('num_questions', 5)
+        source_type = request.data.get('source_type') # 'topic', 'subject', 'course'
+        source_id = request.data.get('source_id')
+        num_questions = int(request.data.get('num_questions', 5))
         difficulty = request.data.get('difficulty', 'Medium')
-        custom_instructions = request.data.get('custom_instructions', '') # <--- NEW
+        custom_instructions = request.data.get('custom_instructions', '')
 
-        topic = get_object_or_404(Topic, id=topic_id)
+        # 1. Aggregate Notes based on Scope
+        text_content = ""
         
-        # Check if notes exist
-        if not topic.study_notes:
-            return Response({"error": "Topic has no notes."}, status=400)
+        if source_type == 'topic':
+            topic = get_object_or_404(Topic, id=source_id)
+            text_content = topic.study_notes or ""
+            
+        elif source_type == 'subject':
+            # Gather notes from all topics in this subject
+            topics = Topic.objects.filter(chapter__subject_id=source_id)
+            for t in topics:
+                if t.study_notes:
+                    text_content += f"\n\n--- Topic: {t.title} ---\n{t.study_notes}"
+                    
+        elif source_type == 'course':
+            # Gather notes from all topics in the course (Limit to avoid overload)
+            # Strategy: Take a summary or limit to first 30 topics
+            topics = Topic.objects.filter(chapter__subject__course_id=source_id)[:30] 
+            for t in topics:
+                if t.study_notes:
+                    text_content += f"\n\n--- Topic: {t.title} ---\n{t.study_notes}"
 
-        questions_json = generate_questions_from_text(
-            topic.study_notes, 
-            num_questions, 
-            difficulty, 
-            custom_instructions
-        )
-        return Response(questions_json)
+        if not text_content:
+            return Response({"error": "No notes found for this selection."}, status=400)
 
+        # 2. Generate
+        questions = generate_questions_from_text(text_content, num_questions, difficulty, custom_instructions)
+        return Response(questions)
+
+    @action(detail=False, methods=['post'])
+    def generate_image(self, request):
+        image = request.FILES.get('image')
+        difficulty = request.data.get('difficulty', 'Medium')
+        custom_instructions = request.data.get('custom_instructions', '')
+
+        if not image:
+            return Response({"error": "No image uploaded"}, status=400)
+
+        questions = generate_question_from_image(image, difficulty, custom_instructions)
+        return Response(questions)
+
+    # ... save_bulk method remains the same ...
     @action(detail=False, methods=['post'])
     def save_bulk(self, request):
         exam_id = request.data.get('exam_id')
         questions_data = request.data.get('questions', [])
         duration = request.data.get('duration')
+
         exam = get_object_or_404(Exam, id=exam_id)
+        
         if duration:
             exam.duration_minutes = int(duration)
             exam.save()
+        
         count = 0
         for q_data in questions_data:
             question = Question.objects.create(
@@ -130,8 +161,9 @@ class AIGeneratorViewSet(viewsets.ViewSet):
                     is_correct=(idx == q_data['correct_index'])
                 )
             count += 1
+            
         return Response({"status": "success", "added": count, "duration_updated": bool(duration)})
-
+    
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer

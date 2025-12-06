@@ -1,26 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Loader2, Save, Trash2, Plus, Wand2, Clock, FileText } from 'lucide-react';
+import { Loader2, Save, Trash2, Plus, Wand2, Clock, FileText, Image as ImageIcon, Layers, UploadCloud, Link as LinkIcon } from 'lucide-react';
 
 const AdminGeneratorPage = () => {
+    // Data Sources
+    const [courses, setCourses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
     const [topics, setTopics] = useState([]);
     const [exams, setExams] = useState([]);
     
-    const [selectedTopic, setSelectedTopic] = useState('');
+    // Generator Config
+    const [mode, setMode] = useState('text'); // 'text' | 'image'
+    const [scope, setScope] = useState('topic'); // 'topic' | 'subject' | 'course'
+    
+    const [selectedId, setSelectedId] = useState(''); // ID of Topic/Subject/Course
     const [selectedExam, setSelectedExam] = useState('');
     const [numQ, setNumQ] = useState(5);
     const [difficulty, setDifficulty] = useState('Medium');
-    const [customInstructions, setCustomInstructions] = useState(''); // <--- NEW STATE
+    const [customInstructions, setCustomInstructions] = useState('');
     
+    const [imageFile, setImageFile] = useState(null);
     const [generatedQuestions, setGeneratedQuestions] = useState([]);
     const [suggestedDuration, setSuggestedDuration] = useState(0);
     const [loading, setLoading] = useState(false);
 
+    // Initial Load
     useEffect(() => {
         const loadData = async () => {
             try {
-                const tRes = await api.get('topics/');
-                const eRes = await api.get('exams/');
+                // Fetch all hierarchy levels
+                const [cRes, tRes, eRes] = await Promise.all([
+                    api.get('courses/'),
+                    api.get('topics/'),
+                    api.get('exams/')
+                ]);
+                
+                setCourses(cRes.data);
+                // Extract subjects from courses
+                const allSubjects = cRes.data.flatMap(c => c.subjects || []);
+                setSubjects(allSubjects);
                 setTopics(tRes.data);
                 setExams(eRes.data);
             } catch(e) { console.error(e) }
@@ -32,19 +50,45 @@ const AdminGeneratorPage = () => {
         setSuggestedDuration(Math.ceil(generatedQuestions.length * 1.5));
     }, [generatedQuestions]);
 
-    const handleGenerate = async () => {
-        if (!selectedTopic) return alert("Select a topic first");
+    // --- HANDLERS ---
+
+    const handleTextGenerate = async () => {
+        if (!selectedId) return alert("Please select a source (Topic/Subject/Course)");
         setLoading(true);
         try {
             const res = await api.post('ai-generator/generate/', {
-                topic_id: selectedTopic,
+                source_type: scope,
+                source_id: selectedId,
                 num_questions: numQ,
                 difficulty: difficulty,
-                custom_instructions: customInstructions // <--- SEND INSTRUCTION
+                custom_instructions: customInstructions
             });
-            setGeneratedQuestions(prev => [...prev, ...res.data]);
+            // Add image_url field to response data for UI handling
+            const formattedData = res.data.map(q => ({ ...q, image_url: '' }));
+            setGeneratedQuestions(prev => [...prev, ...formattedData]);
         } catch (err) {
-            alert("AI Generation failed.");
+            alert("Generation failed. Ensure the selected source has notes.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleImageGenerate = async () => {
+        if (!imageFile) return alert("Please upload an image first");
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('difficulty', difficulty);
+        formData.append('custom_instructions', customInstructions);
+
+        try {
+            const res = await api.post('ai-generator/generate_image/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const formattedData = res.data.map(q => ({ ...q, image_url: '' }));
+            setGeneratedQuestions(prev => [...prev, ...formattedData]);
+        } catch (err) {
+            alert("Image analysis failed.");
         } finally {
             setLoading(false);
         }
@@ -53,16 +97,35 @@ const AdminGeneratorPage = () => {
     const addManualQuestion = () => {
         setGeneratedQuestions(prev => [
             ...prev,
-            { question_text: "New Question...", options: ["A", "B", "C", "D"], correct_index: 0, marks: 1 }
+            {
+                question_text: "New Question...",
+                options: ["Option A", "Option B", "Option C", "Option D"],
+                correct_index: 0,
+                marks: 2,
+                image_url: '' // New Field
+            }
         ]);
     };
 
     const handleSave = async () => {
         if (!selectedExam) return alert("Select an Exam first");
+        
+        // Prepare questions: Append Image URL to text as Markdown if present
+        const questionsToSave = generatedQuestions.map(q => {
+            let finalContent = q.question_text;
+            if (q.image_url) {
+                finalContent += `\n\n![Diagram](${q.image_url})`;
+            }
+            return {
+                ...q,
+                question_text: finalContent
+            };
+        });
+
         try {
             await api.post('ai-generator/save_bulk/', {
                 exam_id: selectedExam,
-                questions: generatedQuestions,
+                questions: questionsToSave,
                 duration: suggestedDuration
             });
             alert("Saved!");
@@ -76,109 +139,204 @@ const AdminGeneratorPage = () => {
         setGeneratedQuestions(updated);
     };
 
+    // --- RENDERERS ---
+
+    const renderSourceSelector = () => {
+        if (scope === 'topic') {
+            return (
+                <select className="w-full p-2 border rounded" onChange={e => setSelectedId(e.target.value)}>
+                    <option value="">Select Topic</option>
+                    {topics.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
+                </select>
+            );
+        } else if (scope === 'subject') {
+            return (
+                <select className="w-full p-2 border rounded" onChange={e => setSelectedId(e.target.value)}>
+                    <option value="">Select Subject</option>
+                    {subjects.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
+                </select>
+            );
+        } else {
+            return (
+                <select className="w-full p-2 border rounded" onChange={e => setSelectedId(e.target.value)}>
+                    <option value="">Select Course (Full Mock)</option>
+                    {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                </select>
+            );
+        }
+    };
+
     return (
-        <div className="max-w-6xl mx-auto p-8 font-sans bg-slate-50 min-h-screen">
+        <div className="max-w-7xl mx-auto p-8 font-sans bg-slate-50 min-h-screen">
             <h1 className="text-3xl font-bold text-slate-800 mb-8 flex items-center gap-3">
-                <Wand2 className="text-purple-600" /> TRE 4.0 Exam Generator
+                <Wand2 className="text-purple-600" /> Versatile Exam Generator
             </h1>
 
-            {/* Controls Panel */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 grid grid-cols-1 gap-6">
-                
-                {/* Row 1: Selectors */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">1. Source Topic</label>
-                        <select className="w-full p-2 border rounded bg-slate-50" onChange={e => setSelectedTopic(e.target.value)}>
-                            <option value="">-- Select Topic --</option>
-                            {topics.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">2. Config</label>
-                        <div className="flex gap-2">
-                            <input type="number" className="w-20 p-2 border rounded" value={numQ} onChange={e => setNumQ(e.target.value)} />
-                            <select className="flex-1 p-2 border rounded" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
-                                <option>Medium</option>
-                                <option>Hard (TRE Level)</option>
-                                <option>Easy</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="flex items-end">
-                        <button onClick={handleGenerate} disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-bold flex justify-center items-center gap-2">
-                            {loading ? <Loader2 className="animate-spin" /> : <><Wand2 size={18}/> Generate</>}
-                        </button>
-                    </div>
+            {/* MAIN CARD */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-10">
+                {/* TABS */}
+                <div className="flex border-b border-slate-200">
+                    <button 
+                        onClick={() => setMode('text')}
+                        className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 ${mode === 'text' ? 'bg-purple-50 text-purple-700 border-b-2 border-purple-600' : 'text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        <FileText size={18}/> From Notes (Text)
+                    </button>
+                    <button 
+                        onClick={() => setMode('image')}
+                        className={`flex-1 py-4 font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 ${mode === 'image' ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        <ImageIcon size={18}/> From Image (Visual)
+                    </button>
                 </div>
 
-                {/* Row 2: Custom Instructions (The Secret Sauce) */}
-                <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
-                        <FileText size={14}/> 3. Pattern / Style Instructions (Optional)
-                    </label>
-                    <textarea 
-                        className="w-full p-3 border rounded-lg bg-yellow-50/50 text-sm focus:ring-2 focus:ring-yellow-200 outline-none"
-                        rows="2"
-                        placeholder="E.g. 'Include 2 questions on Python Output. Focus on practical application. Use 5 options like BPSC pattern.'"
-                        value={customInstructions}
-                        onChange={e => setCustomInstructions(e.target.value)}
-                    />
-                </div>
-            </div>
-
-            {/* Questions Editor */}
-            {generatedQuestions.length > 0 && (
-                <div className="space-y-6 pb-32">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-slate-700">Review ({generatedQuestions.length})</h2>
-                        <div className="flex items-center gap-4 bg-white p-2 rounded-lg border shadow-sm">
-                            <select className="p-2 bg-transparent outline-none font-medium" onChange={e => setSelectedExam(e.target.value)}>
-                                <option value="">-- Select Target Exam --</option>
-                                {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
-                            </select>
-                            <div className="flex items-center gap-2 border-l pl-4">
-                                <Clock size={16} className="text-slate-400"/>
-                                <input type="number" className="w-16 p-1 border rounded text-center" value={suggestedDuration} onChange={e => setSuggestedDuration(e.target.value)} />
-                                <span className="text-sm text-slate-500">mins</span>
+                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* LEFT: Configuration */}
+                    <div className="space-y-6">
+                        {mode === 'text' && (
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">1. Generation Scope</label>
+                                <div className="flex gap-2 mb-4">
+                                    {['topic', 'subject', 'course'].map(s => (
+                                        <button 
+                                            key={s} 
+                                            onClick={() => setScope(s)}
+                                            className={`px-3 py-1 rounded-full text-xs font-bold border ${scope === s ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-300'}`}
+                                        >
+                                            {s === 'course' ? 'Full Mock' : s.charAt(0).toUpperCase() + s.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
+                                {renderSourceSelector()}
                             </div>
+                        )}
+
+                        {mode === 'image' && (
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">1. Upload Image</label>
+                                <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50 hover:border-blue-400 transition-colors">
+                                    <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} className="hidden" id="imgUpload" />
+                                    <label htmlFor="imgUpload" className="cursor-pointer">
+                                        <UploadCloud className="mx-auto text-slate-400 mb-2" size={32} />
+                                        <p className="text-sm text-slate-600 font-medium">{imageFile ? imageFile.name : "Click to upload diagram/question"}</p>
+                                    </label>
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">2. Instructions & Difficulty</label>
+                            <div className="flex gap-2 mb-3">
+                                {mode === 'text' && <input type="number" className="w-20 p-2 border rounded" value={numQ} onChange={e => setNumQ(e.target.value)} placeholder="Qty" />}
+                                <select className="flex-1 p-2 border rounded" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+                                    <option>Easy</option>
+                                    <option>Medium</option>
+                                    <option>Hard</option>
+                                </select>
+                            </div>
+                            <textarea 
+                                className="w-full p-3 border rounded-lg text-sm h-24"
+                                placeholder="E.g. Focus on numericals. Match PYQ style."
+                                value={customInstructions}
+                                onChange={e => setCustomInstructions(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <button 
+                                onClick={mode === 'text' ? handleTextGenerate : handleImageGenerate} 
+                                disabled={loading}
+                                className={`w-full py-3 rounded-xl font-bold text-white shadow-lg transition-all flex justify-center items-center gap-2
+                                    ${mode === 'text' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'}
+                                `}
+                            >
+                                {loading ? <Loader2 className="animate-spin" /> : <><Wand2 size={18}/> Generate {mode === 'text' ? 'Bulk' : 'Question'}</>}
+                            </button>
+                            
+                            <button 
+                                onClick={addManualQuestion} 
+                                className="w-full py-3 rounded-xl font-bold border-2 border-dashed border-slate-300 text-slate-500 hover:border-blue-500 hover:text-blue-600 flex justify-center items-center gap-2 transition-all"
+                            >
+                                <Plus size={18}/> Add Manual Question
+                            </button>
                         </div>
                     </div>
 
-                    {generatedQuestions.map((q, qIdx) => (
-                        <div key={qIdx} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                            <div className="flex justify-between mb-4">
-                                <span className="font-bold text-slate-300">#{qIdx + 1}</span>
-                                <button onClick={() => setGeneratedQuestions(prev => prev.filter((_, i) => i !== qIdx))} className="text-red-300 hover:text-red-500">
-                                    <Trash2 size={18} />
-                                </button>
+                    {/* RIGHT: Review Panel */}
+                    <div className="bg-slate-50 rounded-xl border border-slate-200 p-6 overflow-y-auto max-h-[600px]">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="font-bold text-slate-700">Review ({generatedQuestions.length})</h2>
+                            <div className="flex items-center gap-2">
+                                <select className="text-sm p-1 border rounded w-40" onChange={e => setSelectedExam(e.target.value)}>
+                                    <option value="">-- Save to Exam --</option>
+                                    {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                                </select>
+                                <button onClick={handleSave} className="bg-green-600 text-white p-2 rounded hover:bg-green-700"><Save size={18}/></button>
                             </div>
-                            <textarea className="w-full p-3 border border-slate-200 rounded-lg mb-4 font-medium text-slate-800" value={q.question_text} onChange={e => updateQuestion(qIdx, 'question_text', e.target.value)} rows={2} />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {q.options.map((opt, oIdx) => (
-                                    <div key={oIdx} className={`flex items-center gap-3 p-3 rounded-lg border ${q.correct_index === oIdx ? 'bg-green-50 border-green-500' : 'bg-slate-50 border-slate-200'}`}>
-                                        <input type="radio" name={`q-${qIdx}`} checked={q.correct_index === oIdx} onChange={() => updateQuestion(qIdx, 'correct_index', oIdx)} />
-                                        <input className="bg-transparent border-none w-full text-sm" value={opt} onChange={(e) => {
-                                            const updatedQs = [...generatedQuestions];
-                                            updatedQs[qIdx].options[oIdx] = e.target.value;
-                                            setGeneratedQuestions(updatedQs);
-                                        }} />
+                        </div>
+
+                        {generatedQuestions.length === 0 ? (
+                            <div className="text-center text-slate-400 mt-20 flex flex-col items-center">
+                                <Layers size={48} className="mb-4 opacity-50"/>
+                                <p>Generated questions will appear here.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {generatedQuestions.map((q, qIdx) => (
+                                    <div key={qIdx} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                                        <div className="flex justify-between mb-2">
+                                            <span className="text-xs font-bold text-slate-400">Q{qIdx + 1}</span>
+                                            <Trash2 size={14} className="text-red-400 cursor-pointer" onClick={() => setGeneratedQuestions(prev => prev.filter((_, i) => i !== qIdx))}/>
+                                        </div>
+                                        
+                                        {/* TEXT INPUT */}
+                                        <textarea 
+                                            className="w-full text-sm font-medium border-none p-0 resize-none focus:ring-0 mb-2" 
+                                            value={q.question_text}
+                                            onChange={e => updateQuestion(qIdx, 'question_text', e.target.value)}
+                                            placeholder="Question text..."
+                                        />
+
+                                        {/* IMAGE INPUT & PREVIEW */}
+                                        <div className="mb-4 bg-slate-50 p-2 rounded border border-slate-100">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <LinkIcon size={14} className="text-slate-400"/>
+                                                <input 
+                                                    className="bg-transparent text-xs w-full outline-none text-slate-600 placeholder-slate-400"
+                                                    placeholder="Paste Image URL here (e.g. https://imgur.com/...)"
+                                                    value={q.image_url || ''}
+                                                    onChange={e => updateQuestion(qIdx, 'image_url', e.target.value)}
+                                                />
+                                            </div>
+                                            {q.image_url && (
+                                                <img 
+                                                    src={q.image_url} 
+                                                    alt="Preview" 
+                                                    className="max-h-32 rounded border border-slate-200 object-contain mx-auto"
+                                                    onError={(e) => e.target.style.display = 'none'} 
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* OPTIONS */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {q.options.map((opt, oIdx) => (
+                                                <div key={oIdx} className={`flex items-center gap-2 p-1.5 rounded border text-xs ${q.correct_index === oIdx ? 'bg-green-50 border-green-300' : 'bg-slate-50'}`}>
+                                                    <input type="radio" checked={q.correct_index === oIdx} onChange={() => updateQuestion(qIdx, 'correct_index', oIdx)} />
+                                                    <input className="bg-transparent w-full outline-none" value={opt} onChange={e => {
+                                                        const updated = [...generatedQuestions];
+                                                        updated[qIdx].options[oIdx] = e.target.value;
+                                                        setGeneratedQuestions(updated);
+                                                    }}/>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    ))}
+                        )}
+                    </div>
                 </div>
-            )}
-
-            {/* Floating Action Bar */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 z-50">
-                <button onClick={addManualQuestion} className="hover:text-blue-400 font-bold flex items-center gap-2 border-r border-slate-700 pr-4">
-                    <Plus size={18} /> Manual Add
-                </button>
-                <button onClick={handleSave} className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-full font-bold flex items-center gap-2">
-                    <Save size={18} /> Publish
-                </button>
             </div>
         </div>
     );
