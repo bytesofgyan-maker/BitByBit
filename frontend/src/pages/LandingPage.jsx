@@ -346,57 +346,72 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* --- SECTION 2: WHY BIT BY BIT? (Philosophy) --- */}
-            <section className="py-24 bg-white px-6">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
-                    <div className="md:w-1/2 relative">
-                        <div className="absolute inset-0 bg-emerald-100 rounded-3xl rotate-3"></div>
-                        <div className="relative bg-slate-900 p-10 rounded-3xl shadow-2xl text-white">
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="p-3 bg-emerald-500 rounded-xl"><BrainCircuit size={32} /></div>
-                                <div>
-                                    <h3 className="font-bold text-xl">Active Recall</h3>
-                                    <p className="text-emerald-200 text-sm">Scientifically Proven</p>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex gap-4 items-center p-4 bg-slate-800 rounded-xl border border-slate-700">
-                                    <span className="text-2xl">📖</span>
-                                    <div>
-                                        <p className="font-bold">Reading & Writing</p>
-                                        <p className="text-xs text-slate-400">Increases retention by 60%</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-4 items-center p-4 bg-slate-800 rounded-xl border border-slate-700 opacity-50">
-                                    <span className="text-2xl">📺</span>
-                                    <div>
-                                        <p className="font-bold">Passive Watching</p>
-                                        <p className="text-xs text-slate-400">Low retention & focus</p>
-                                    </div>
-                                </div>
+            {/* --- SECTION 2: PHILOSOPHY (Enhanced with Image) --- */}
+            <section className="py-24 bg-white px-6 relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
+
+                <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative z-10">
+                    
+                    {/* Left: The Image */}
+                    <div className="lg:w-1/2 relative group">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+                        <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-100 bg-white">
+                            {/* Replace src with your local image path */}
+                            <img 
+                                src="/assets/active_learning_comparison.png" 
+                                alt="Active Reading vs Passive Watching Comparison" 
+                                className="w-full h-auto object-cover transform transition-transform duration-700 hover:scale-105"
+                            />
+                            <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-900/90 to-transparent p-6">
+                                <p className="text-white font-bold text-lg">Scientific Fact:</p>
+                                <p className="text-slate-300 text-sm">Active recall (reading & testing) builds stronger neural pathways than passive consumption.</p>
                             </div>
                         </div>
                     </div>
-                    <div className="md:w-1/2 space-y-6">
-                        <h2 className="text-4xl font-extrabold text-slate-900 leading-tight">
-                            Why <span className="text-blue-600">Bit by Bit?</span>
+
+                    {/* Right: Persuasive Copy for Parents */}
+                    <div className="lg:w-1/2 space-y-8">
+                        <div className="inline-block bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider">
+                            The Science of Learning
+                        </div>
+                        
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+                            Don't let them just <span className="text-red-500 decoration-wavy underline decoration-2 underline-offset-4">watch</span>. <br/>
+                            Help them <span className="text-blue-600">Learn.</span>
                         </h2>
+                        
                         <p className="text-lg text-slate-600 leading-relaxed">
-                            Our motto is to bring back the capability of <strong>Reading and Learning</strong>. 
-                            Scientific research shows that students who read, write, and practice indulge in 
-                            <strong> active learning</strong> which grows IQ and cognitive function significantly more than passive video watching.
+                            Video lectures are easy, but **low retention**. Our platform brings back the capability of reading, writing, and practicing—activities proven to increase IQ and cognitive function.
                         </p>
-                        <ul className="space-y-3 mt-4">
-                            {[
-                                "Focus on Revision & Practice over long videos",
-                                "Mental capabilities enhancement through reading",
-                                "Activity-based learning for higher functioning"
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center gap-3 text-slate-700 font-medium">
-                                    <CheckCircle size={20} className="text-emerald-500 flex-shrink-0" /> {item}
-                                </li>
-                            ))}
-                        </ul>
+
+                        <div className="space-y-6">
+                            <div className="flex gap-4">
+                                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0 text-blue-600">
+                                    <BrainCircuit size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-slate-800">Boosts Cognitive Function</h3>
+                                    <p className="text-slate-500 text-sm">Reading engages the brain's prefrontal cortex, improving focus and critical thinking skills that videos bypass.</p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0 text-purple-600">
+                                    <Zap size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-slate-800">Active vs. Passive</h3>
+                                    <p className="text-slate-500 text-sm">Students who solve problems (Active) score <strong>2x higher</strong> than those who just watch solutions (Passive).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <Link to="/register" className="inline-flex items-center gap-2 text-blue-600 font-bold hover:text-blue-800 transition-colors text-lg">
+                                See the difference yourself <ArrowRight size={20} />
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
