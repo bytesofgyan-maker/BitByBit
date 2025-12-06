@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Course, Subject, Chapter, Topic, Exam, Question, Option, UserSubscription, ExamAttempt, StudentResponse
+from .models import AdBanner
 
 class OptionInline(admin.TabularInline):
     model = Option
@@ -27,3 +28,5 @@ admin.site.register(Question, QuestionAdmin)
 admin.site.register(UserSubscription)
 admin.site.register(ExamAttempt)
 admin.site.register(StudentResponse)
+
+admin.site.register(AdBanner)
