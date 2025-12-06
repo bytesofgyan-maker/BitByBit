@@ -10,6 +10,8 @@ from .models import Course, Exam, ExamAttempt, Question, Option, StudentResponse
 from .ai_service import generate_questions_from_text, generate_question_from_image
 from .serializers import CourseSerializer, ExamSerializer, ExamAttemptSerializer, TopicSerializer
 from .permissions import IsPaidSubscriberOrAdmin
+from .models import AdBanner
+from .serializers import AdBannerSerializer
 
 # ... [Keep your existing ViewSets: CourseViewSet, TopicViewSet, ExamViewSet, AttemptHistoryViewSet] ...
 # (I am repeating them briefly so the file is complete and valid when you copy-paste)
@@ -242,3 +244,15 @@ class BulkNotesViewSet(viewsets.ViewSet):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+class AdBannerViewSet(viewsets.ModelViewSet):
+    queryset = AdBanner.objects.filter(is_active=True).order_by('-created_at')
+    serializer_class = AdBannerSerializer
+    
+    def get_permissions(self):
+        # Allow anyone to VIEW ads, but only Admins to EDIT/CREATE them
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]

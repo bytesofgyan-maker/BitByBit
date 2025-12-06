@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Course, Subject, Chapter, Topic, Exam, Question, Option, ExamAttempt
 from djoser.serializers import UserSerializer as BaseUserSerializer
+from .models import AdBanner 
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,3 +62,8 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
         fields = ['id', 'username', 'email', 'is_superuser', 'is_staff']
+
+class AdBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdBanner
+        fields = '__all__'

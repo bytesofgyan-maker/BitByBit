@@ -50,6 +50,14 @@ const AdminDashboardPage = () => {
                     <h2 className="text-xl font-bold mb-2">Test Live Website</h2>
                     <p className="text-slate-400 text-sm">Explore student view in God Mode.</p>
                 </Link>
+                {/* 4. Ads Banner */}
+                <Link to="/admin-ads" className="group bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-blue-500 hover:bg-slate-800/80 transition-all shadow-xl">
+                    <div className="bg-blue-900/50 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Layout className="text-blue-400" size={28} />
+                    </div>
+                    <h2 className="text-xl font-bold mb-2">Customise Ads Banner</h2>
+                    <p className="text-slate-400 text-sm">Set and Customise the ads banner in Landing Page.</p>
+                </Link>
             </div>
         </div>
     );

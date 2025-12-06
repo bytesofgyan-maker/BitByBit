@@ -114,3 +114,19 @@ class StudentResponse(models.Model):
 
     class Meta:
         unique_together = ('attempt', 'question')
+
+class AdBanner(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    button_text = models.CharField(max_length=50, default="Learn More")
+    link = models.CharField(max_length=255, blank=True) # External URL or internal path
+    
+    # Visual Customization
+    bg_gradient_from = models.CharField(max_length=50, default="blue-600", help_text="Tailwind color class (e.g. blue-600)")
+    bg_gradient_to = models.CharField(max_length=50, default="purple-600", help_text="Tailwind color class")
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title        

@@ -15,6 +15,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AdminNotesUploadPage from './pages/AdminNotesUploadPage';
 import CourseStorePage from './pages/CourseStorePage';
+import AdminAdManagerPage from './pages/AdminAdManagerPage';
 // --- Components ---
 
 const Navbar = () => {
@@ -145,6 +146,7 @@ function App() {
                 <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
                 <Route path="/admin-generator" element={<AdminRoute><AdminGeneratorPage /></AdminRoute>} />
                 <Route path="/admin-notes-upload" element={<AdminRoute><AdminNotesUploadPage /></AdminRoute>} />
+                <Route path="/admin-ads" element={<AdminRoute><AdminAdManagerPage /></AdminRoute>} />
 
                 {/* Auth Routes */}
                 <Route path="/login" element={<LoginPage />} />

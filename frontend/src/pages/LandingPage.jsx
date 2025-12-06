@@ -4,6 +4,7 @@ import {
     BookOpen, CheckCircle, Clock, Trophy, ChevronDown, Menu, X, 
     GraduationCap, ArrowRight, Monitor, Cpu, FileText, Globe, Cloud 
 } from 'lucide-react';
+import api from '../api/axios';
 
 // --- NAVIGATION DATA ---
 const NAV_LINKS = [
@@ -74,9 +75,73 @@ const LandingPage = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showAd, setShowAd] = useState(true); // State for Top Banner
+    const [banners, setBanners] = useState([]);
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    
+    // Fetch Ads on Load
+    React.useEffect(() => {
+        api.get('banners/').then(res => setBanners(res.data)).catch(() => {});
+    }, []);
+
+    // Timer Logic (Auto-Slide)
+    React.useEffect(() => {
+        if (banners.length <= 1) return; // Don't slide if 0 or 1 ad
+        
+        const timer = setInterval(() => {
+            setCurrentAdIndex(prev => (prev + 1) % banners.length);
+        }, 4000); // 4 Seconds per slide
+
+        return () => clearInterval(timer);
+    }, [banners]);
+
+    const activeBanner = banners[currentAdIndex];
+
 
     return (
         <div className="bg-white font-sans text-slate-800">
+
+            {/* --- DYNAMIC TOP ADS CAROUSEL --- */}
+            {activeBanner && (
+                <div className={`relative bg-gradient-to-r from-${activeBanner.bg_gradient_from} to-${activeBanner.bg_gradient_to} text-white p-3 md:py-4 transition-all duration-500 ease-in-out`}>
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 px-4">
+                        
+                        {/* Text Content */}
+                        <div className="text-center md:text-left flex-1">
+                            <span className="bg-white/20 text-xs font-bold px-2 py-1 rounded mr-3 uppercase tracking-wider hidden md:inline-block">New</span>
+                            <span className="font-bold text-sm md:text-base">{activeBanner.title}</span>
+                            <span className="hidden md:inline mx-2">•</span>
+                            <span className="text-sm opacity-90">{activeBanner.description}</span>
+                        </div>
+
+                        {/* Action Button */}
+                        <div className="flex items-center gap-4">
+                            <Link to={activeBanner.link} className="bg-white text-slate-900 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-slate-100 transition-colors shadow-sm whitespace-nowrap">
+                                {activeBanner.button_text}
+                            </Link>
+                            
+                            {/* Close Button (Hides ONLY current session) */}
+                            <button 
+                                onClick={() => setBanners([])} // Simple hide for user session
+                                className="text-white/60 hover:text-white"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Slide Indicators (Dots) */}
+                    {banners.length > 1 && (
+                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                            {banners.map((_, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentAdIndex ? 'bg-white' : 'bg-white/30'}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
             
             {/* --- NAVIGATION BAR (Now at the Top) --- */}
             <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
