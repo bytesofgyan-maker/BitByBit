@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Loader2, Save, Trash2, Plus, Wand2, Clock, FileText, Image as ImageIcon, Layers, UploadCloud, Link as LinkIcon, FileSpreadsheet, Download } from 'lucide-react';
+import { Loader2, Save, Trash2, Plus, Wand2, Clock, FileText, Image as ImageIcon, Layers, UploadCloud, Link as LinkIcon, FileSpreadsheet, Download, RefreshCw } from 'lucide-react';
 
 const AdminGeneratorPage = () => {
     // Data Sources
@@ -127,6 +127,45 @@ const AdminGeneratorPage = () => {
         }
     };
 
+    // NEW: Fetch existing questions from an exam to edit
+    const handleLoadExamQuestions = async () => {
+        if (!selectedExam) return alert("Please select an exam to load questions from.");
+        if (generatedQuestions.length > 0 && !window.confirm("This will replace your current editor content. Continue?")) return;
+
+        setLoading(true);
+        try {
+            const res = await api.get(`exams/${selectedExam}/`);
+            const examData = res.data;
+            
+            // Transform backend structure to generator structure
+            const loadedQuestions = examData.questions.map(q => {
+                // Find index of correct option
+                const correctIndex = q.options.findIndex(opt => opt.id === q.correct_option_id || opt.is_correct); // Adjust based on your serializer
+                // Note: If your serializer doesn't send is_correct, you might need to update it or this feature is limited to text editing.
+                // Assuming standard list order for options 0-3
+                
+                return {
+                    question_text: q.text_content,
+                    options: q.options.map(o => o.text),
+                    correct_index: correctIndex !== -1 ? correctIndex : 0,
+                    marks: q.marks,
+                    image_url: '', // Backend might not store image URL separately yet
+                    id: q.id // Track ID if we want to update later
+                };
+            });
+
+            setGeneratedQuestions(loadedQuestions);
+            // Also sync the timer
+            if (examData.duration_minutes) setSuggestedDuration(examData.duration_minutes);
+            
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load exam questions. Ensure you have permission.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const addManualQuestion = () => {
         setGeneratedQuestions(prev => [
             ...prev,
@@ -157,7 +196,7 @@ const AdminGeneratorPage = () => {
                 questions: questionsToSave,
                 duration: suggestedDuration
             });
-            alert("Saved!");
+            alert("Saved! Questions added to the exam.");
             setGeneratedQuestions([]);
         } catch (err) { alert("Failed to save."); }
     };
@@ -339,11 +378,22 @@ const AdminGeneratorPage = () => {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="font-bold text-slate-700">Review ({generatedQuestions.length})</h2>
                             <div className="flex items-center gap-2">
-                                <select className="text-sm p-1 border rounded w-40" onChange={e => setSelectedExam(e.target.value)}>
+                                <select className="text-sm p-1 border rounded w-40" onChange={e => setSelectedExam(e.target.value)} value={selectedExam}>
                                     <option value="">-- Save to Exam --</option>
                                     {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
                                 </select>
-                                <button onClick={handleSave} className="bg-green-600 text-white p-2 rounded hover:bg-green-700"><Save size={18}/></button>
+                                {/* Load Button */}
+                                <button 
+                                    onClick={handleLoadExamQuestions} 
+                                    className="bg-blue-100 text-blue-700 p-2 rounded hover:bg-blue-200"
+                                    title="Load Existing Questions"
+                                >
+                                    <RefreshCw size={18}/>
+                                </button>
+                                {/* Save Button */}
+                                <button onClick={handleSave} className="bg-green-600 text-white p-2 rounded hover:bg-green-700" title="Save / Publish">
+                                    <Save size={18}/>
+                                </button>
                             </div>
                         </div>
 
