@@ -131,11 +131,11 @@ const AgniveerPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-amber-500 uppercase">Agniveer 2025</h1>
+                            <h1 className="text-3xl font-bold tracking-tight text-amber-500 uppercase">Agniveer 2026</h1>
                             <p className="text-stone-400 text-sm mt-1">Indian Army Recruitment • Interactive Preparation Guide</p>
                         </div>
                         <div className="text-center md:text-right">
-                            <span className="inline-block bg-green-800 text-green-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">25,000+ Vacancies</span>
+                            <span className="inline-block bg-green-800 text-green-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">XXXX Vacancies</span>
                             <p className="text-xs text-stone-500 mt-1">Source: Official Notification 2025</p>
                         </div>
                     </div>

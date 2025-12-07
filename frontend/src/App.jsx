@@ -17,6 +17,7 @@ import AdminNotesUploadPage from './pages/AdminNotesUploadPage';
 import CourseStorePage from './pages/CourseStorePage';
 import AdminAdManagerPage from './pages/AdminAdManagerPage';
 import AgniveerPage from './pages/courses/AgniveerPage'; 
+import BpscTrePage from './pages/courses/BpscTrePage';
 // --- Components ---
 
 const Navbar = () => {
@@ -113,7 +114,8 @@ function App() {
   useEffect(() => {
     const handleFocus = () => {
         // If we are on a protected page but have no token, force reload
-        const isPublic = ['/login', '/register', '/'].includes(window.location.pathname);
+        const isPublic = ['/login', '/register', '/', '/defence/agniveer', 
+            '/teaching/bpsc_tre'].includes(window.location.pathname);
         const hasToken = !!localStorage.getItem('access_token');
         
         if (!isPublic && !hasToken) {
@@ -139,7 +141,8 @@ function App() {
 
                 {/* Introduction Pages (Public) */}
                 <Route path="/defence/agniveer" element={<AgniveerPage />} />
-                
+                <Route path="/teaching/bpsc_tre" element={<BpscTrePage />} />
+
                 {/* Student Routes */}
                 <Route path="/courses" element={<PrivateRoute><CourseList /></PrivateRoute>} />
                 <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
@@ -166,3 +169,4 @@ function App() {
 }
 
 export default App;
+
