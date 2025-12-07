@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Chart } from 'chart.js/auto'; // We will use the npm package instead of CDN for stability
+import { Chart } from 'chart.js/auto';
 
-// --- EXAM DATA (From User's Script) ---
+// --- EXAM DATA (Updated with Detailed Syllabus) ---
 const EXAM_DATA = {
     gd: {
         title: "General Duty (GD)",
@@ -11,16 +11,31 @@ const EXAM_DATA = {
         negMark: 0.5,
         correctMark: 2,
         subjects: [
-            { name: "General Knowledge", questions: 15, marks: 30, color: "#d97706" }, 
-            { name: "General Science", questions: 15, marks: 30, color: "#16a34a" }, 
-            { name: "Maths", questions: 15, marks: 30, color: "#2563eb" }, 
-            { name: "Logical Reasoning", questions: 5, marks: 10, color: "#9333ea" }
+            { name: "General Knowledge", questions: 15, marks: 30, color: "#d97706" }, // Amber 600
+            { name: "General Science", questions: 15, marks: 30, color: "#16a34a" },   // Green 600
+            { name: "Maths", questions: 15, marks: 30, color: "#2563eb" },             // Blue 600
+            { name: "Logical Reasoning", questions: 5, marks: 10, color: "#9333ea" }    // Purple 600
         ],
         syllabus: {
-            "General Knowledge": ["Current Affairs", "Sports", "History", "Geography", "Awards"],
-            "General Science": ["Biology (10th)", "Chemistry (10th)", "Physics (10th)"],
-            "Maths": ["Number System", "HCF & LCM", "Percentage", "Average", "Ratio", "Mensuration"],
-            "Logical Reasoning": ["Number Series", "Coding-Decoding", "Direction Sense", "Blood Relations"]
+            "General Knowledge": [
+                "Current Affairs (National & International)", "Sports Terminology", "Awards and Honors",
+                "History (India & World)", "Geography", "Indian Constitution", "Books and Authors",
+                "Inventions & Discoveries", "Abbreviations"
+            ],
+            "General Science": [
+                "Basic Physics, Chemistry, Biology (10th Level)", "Human Body & Diseases",
+                "Everyday Science Principles", "Scientific Instruments"
+            ],
+            "Maths": [
+                "Number Systems", "HCF & LCM", "Decimal Fractions", "Square Roots", 
+                "Percentage", "Average", "Ratio & Proportion", "Profit & Loss", 
+                "Partnership", "Time & Work", "Pipes & Cisterns", "Time & Distance",
+                "Mensuration", "Trigonometry", "Geometry", "Algebraic Expressions"
+            ],
+            "Logical Reasoning": [
+                "Coding-Decoding", "Number Series", "Blood Relations", "Direction Sense",
+                "Analogy", "Odd One Out", "Logical Sequence of Words", "Venn Diagrams"
+            ]
         }
     },
     tech: {
@@ -31,36 +46,57 @@ const EXAM_DATA = {
         negMark: 1.0,
         correctMark: 4,
         subjects: [
-            { name: "GK", questions: 10, marks: 40, color: "#d97706" },
+            { name: "General Knowledge", questions: 10, marks: 40, color: "#d97706" },
             { name: "Maths", questions: 15, marks: 60, color: "#2563eb" },
-            { name: "Physics", questions: 15, marks: 60, color: "#0891b2" },
-            { name: "Chemistry", questions: 10, marks: 40, color: "#be123c" }
+            { name: "Physics", questions: 15, marks: 60, color: "#0891b2" }, // Cyan 600
+            { name: "Chemistry", questions: 10, marks: 40, color: "#be123c" } // Rose 700
         ],
         syllabus: {
-            "GK": ["History", "Geography", "Current Affairs"],
-            "Maths": ["Algebra", "Matrices", "Trigonometry", "Calculus"],
-            "Physics": ["Kinematics", "Laws of Motion", "Thermodynamics"],
-            "Chemistry": ["Physical", "Inorganic", "Organic"]
+            "General Knowledge": [
+                "History", "Geography", "Current Affairs", "Awards & Sports", "Indian Armed Forces Facts"
+            ],
+            "Maths (12th Level)": [
+                "Algebra", "Matrices & Determinants", "Analytical Geometry", "Trigonometry", 
+                "Integral & Differential Calculus", "Probability", "Statistics", "Number Systems", "Vector Algebra"
+            ],
+            "Physics": [
+                "Physical World & Measurement", "Kinematics", "Laws of Motion", "Work, Energy & Power", 
+                "Motion of System of Particles", "Gravitation", "Thermodynamics", "Properties of Bulk Matter"
+            ],
+            "Chemistry": [
+                "Physical Chemistry", "Inorganic Chemistry", "Organic Chemistry", 
+                "Atomic Structure", "Chemical Bonding", "States of Matter", "Elements & Compounds"
+            ]
         }
     },
     clerk: {
         title: "Clerk / Store Keeper",
         totalQ: 50,
         maxMarks: 200,
-        passMarks: "80 (32/part)",
+        passMarks: "80 (32 in each part)",
         negMark: 1.0,
         correctMark: 4,
         subjects: [
-            { name: "GK & Science", questions: 10, marks: 40, color: "#d97706" },
-            { name: "Maths", questions: 10, marks: 40, color: "#2563eb" },
-            { name: "Computer Science", questions: 5, marks: 20, color: "#4f46e5" },
-            { name: "General English", questions: 25, marks: 100, color: "#059669" }
+            { name: "GK & Science (Part 1)", questions: 10, marks: 40, color: "#d97706" }, 
+            { name: "Maths (Part 1)", questions: 10, marks: 40, color: "#2563eb" },
+            { name: "Computer Science (Part 1)", questions: 5, marks: 20, color: "#4f46e5" }, // Indigo 600
+            { name: "General English (Part 2)", questions: 25, marks: 100, color: "#059669" } // Emerald 600
         ],
         syllabus: {
-            "GK & Science": ["History", "Geography", "Basic Science"],
-            "Maths": ["Arithmetic", "Algebra", "Mensuration"],
-            "Computer": ["Basic CS", "MS Office", "Input/Output"],
-            "English": ["Grammar", "Comprehension", "Vocabulary"]
+            "Part 1: General Knowledge": ["Current Affairs", "History", "Geography", "Civics"],
+            "Part 1: General Science": ["Basic Physics", "Chemistry", "Biology standards"],
+            "Part 1: Maths": ["Arithmetic", "Algebra", "Mensuration (Area/Volume)", "Trigonometry", "Basic Geometry", "Statistics"],
+            "Part 1: Computer Science": [
+                "Computer System", "Input/Output Devices", "Memory (RAM/ROM)", 
+                "MS Office (Word, Excel, PPT)", "Windows OS", "Basic Internet concepts"
+            ],
+            "Part 2: General English": [
+                "Comprehension (Unseen Passages)", 
+                "Parts of Speech (Noun, Pronoun, Verb, Adverb, Preposition, Conjunction)", 
+                "Tenses & Articles", 
+                "Vocab (Synonyms, Antonyms, One Word Substitution, Idioms)", 
+                "Sentence (Jumbled, Active/Passive Voice, Direct/Indirect Speech, Spotting Errors)"
+            ]
         }
     }
 };
@@ -75,7 +111,7 @@ const AgniveerPage = () => {
     // --- CHART LOGIC ---
     useEffect(() => {
         if (chartRef.current) {
-            chartRef.current.destroy(); // Destroy previous chart to prevent overlay
+            chartRef.current.destroy(); 
         }
 
         const data = EXAM_DATA[role];
@@ -100,14 +136,24 @@ const AgniveerPage = () => {
                     legend: {
                         position: 'bottom',
                         labels: { boxWidth: 12, padding: 15, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) label += ': ';
+                                let val = context.raw;
+                                let marks = data.subjects[context.dataIndex].marks;
+                                return `${label}${val} Qs (${marks} Marks)`;
+                            }
+                        }
                     }
                 }
             }
         });
 
-        // Reset active subject when role changes
         setActiveSubject(Object.keys(data.syllabus)[0]);
-        setCalculator({ correct: '', wrong: '', score: null }); // Reset calc
+        setCalculator({ correct: '', wrong: '', score: null });
     }, [role]);
 
     // --- CALCULATOR LOGIC ---
@@ -116,9 +162,12 @@ const AgniveerPage = () => {
         const correct = parseInt(calculator.correct) || 0;
         const wrong = parseInt(calculator.wrong) || 0;
 
-        if (correct + wrong > 50) return alert("Total attempts cannot exceed 50!");
+        if (correct + wrong > 50) {
+            alert("Total attempts cannot exceed 50 questions!");
+            return;
+        }
 
-        const score = (correct * data.correctMark) - (wrong * data.negMark);
+        const score = (correct * data.correctMark) - (wrong * Math.abs(data.negMark)); // Ensure positive negMark for subtraction logic
         setCalculator(prev => ({ ...prev, score }));
     };
 
@@ -131,11 +180,11 @@ const AgniveerPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-amber-500 uppercase">Agniveer 2026</h1>
+                            <h1 className="text-3xl font-bold tracking-tight text-amber-500 uppercase">Agniveer 2025</h1>
                             <p className="text-stone-400 text-sm mt-1">Indian Army Recruitment • Interactive Preparation Guide</p>
                         </div>
                         <div className="text-center md:text-right">
-                            <span className="inline-block bg-green-800 text-green-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">XXXX Vacancies</span>
+                            <span className="inline-block bg-green-800 text-green-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">25,000+ Vacancies</span>
                             <p className="text-xs text-stone-500 mt-1">Source: Official Notification 2025</p>
                         </div>
                     </div>
@@ -179,7 +228,7 @@ const AgniveerPage = () => {
                             <StatBox label="Questions" value={currentData.totalQ} />
                             <StatBox label="Max Marks" value={currentData.maxMarks} />
                             <StatBox label="Pass Marks" value={currentData.passMarks} color="text-green-700" />
-                            <StatBox label="Neg. Mark" value={`-${currentData.negMark}`} color="text-red-600" />
+                            <StatBox label="Neg. Mark" value={currentData.negMark} color="text-red-600" />
                         </div>
 
                         <div className="h-[300px] w-full flex justify-center">
@@ -226,14 +275,18 @@ const AgniveerPage = () => {
                     <div className="flex flex-col md:flex-row gap-8 items-center">
                         <div className="md:w-1/2 space-y-4">
                             <h3 className="text-2xl font-bold text-amber-500">Strategy Room: Score Simulator</h3>
-                            <p className="text-stone-300">Negative marking is the biggest threat. Use this tool to estimate your score.</p>
+                            <p className="text-stone-300">
+                                Negative marking ({currentData.negMark} marks) is the biggest threat. Use this tool to estimate your score.
+                                <br/><br/>
+                                <strong className="text-white">Note:</strong> {role === 'clerk' ? "For Clerk, you must score at least 32 marks in Part 1 and 32 marks in Part 2 individually to pass." : "Ensure you clear the aggregate cut-off."}
+                            </p>
                             
                             {calculator.score !== null && (
                                 <div className="p-4 bg-stone-700 rounded-lg border-l-4 border-amber-500 animate-in fade-in slide-in-from-left-4 duration-500">
                                     <div className="flex justify-between items-end border-b border-stone-500 pb-2 mb-2">
                                         <span className="text-stone-300 text-sm">Projected Score</span>
-                                        <span className={`font-bold tracking-wider text-lg ${calculator.score >= parseInt(currentData.passMarks) ? 'text-green-400' : 'text-red-400'}`}>
-                                            {calculator.score >= parseInt(currentData.passMarks) ? "QUALIFIED" : "RISKY"}
+                                        <span className={`font-bold tracking-wider text-lg ${calculator.score >= (typeof currentData.passMarks === 'number' ? currentData.passMarks : 80) ? 'text-green-400' : 'text-red-400'}`}>
+                                            {calculator.score >= (typeof currentData.passMarks === 'number' ? currentData.passMarks : 80) ? "SAFE ZONE" : "RISKY"}
                                         </span>
                                     </div>
                                     <div className="text-3xl font-bold text-white">{calculator.score} <span className="text-base text-stone-400 font-normal">/ {currentData.maxMarks}</span></div>
@@ -272,6 +325,13 @@ const AgniveerPage = () => {
                 </section>
 
             </main>
+
+            <footer className="bg-stone-900 text-stone-400 py-8 mt-12 border-t border-stone-800">
+                <div className="max-w-7xl mx-auto px-4 text-center">
+                    <p className="mb-2">&copy; 2025 Indian Army Agniveer Guide. Educational Purpose Only.</p>
+                    <p className="text-xs">Based on "Indian Army Agniveer Syllabus 2025" notification.</p>
+                </div>
+            </footer>
         </div>
     );
 };
