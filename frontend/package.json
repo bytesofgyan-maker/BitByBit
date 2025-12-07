@@ -12,9 +12,11 @@
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.13.2",
+    "chart.js": "^4.5.1",
     "katex": "^0.16.25",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
     "react-latex-next": "^3.0.0",
     "react-markdown": "^10.1.0",
