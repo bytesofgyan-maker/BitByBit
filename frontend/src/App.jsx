@@ -16,7 +16,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import AdminNotesUploadPage from './pages/AdminNotesUploadPage';
 import CourseStorePage from './pages/CourseStorePage';
 import AdminAdManagerPage from './pages/AdminAdManagerPage';
-
+import AgniveerPage from './pages/courses/AgniveerPage'; 
 // --- Components ---
 
 const Navbar = () => {
@@ -136,6 +136,9 @@ function App() {
             <Routes>
                 {/* Landing / Home */}
                 <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+
+                {/* Introduction Pages (Public) */}
+                <Route path="/defence/agniveer" element={<AgniveerPage />} />
                 
                 {/* Student Routes */}
                 <Route path="/courses" element={<PrivateRoute><CourseList /></PrivateRoute>} />
